@@ -3,9 +3,7 @@ package com.example.recipeapp.ui.home
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -14,6 +12,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.example.recipeapp.R
 import com.example.recipeapp.data.model.RecipeItem
+import com.example.recipeapp.helper.SharedPreferencesHelper
 import kotlinx.android.synthetic.main.home_fragment.*
 import java.util.*
 import kotlin.collections.ArrayList
@@ -24,6 +23,8 @@ class Home : Fragment(), ItemClickListener {
     companion object {
         fun newInstance() = Home()
     }
+
+    lateinit var sharedPreferencesHelper: SharedPreferencesHelper
 
     private lateinit var viewModel: HomeViewModel
 
@@ -39,11 +40,44 @@ class Home : Fragment(), ItemClickListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        setHasOptionsMenu(true)
         return inflater.inflate(R.layout.home_fragment, container, false)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.menu_items, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        if (item.itemId == R.id.calories_sort) {
+
+            val sorted = recipesList.sortedBy {
+                it.calories
+            }
+            recipeAdapter.setResult(sorted)
+            sharedPreferencesHelper.saveDataInShared("sort", "calories")
+
+            return true
+        } else if (item.itemId == R.id.fats_sort) {
+            val sorted = recipesList.sortedBy {
+                it.fats
+            }
+            recipeAdapter.setResult(sorted)
+
+            sharedPreferencesHelper.saveDataInShared("sort", "fats")
+            return true
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+
+        sharedPreferencesHelper = SharedPreferencesHelper(requireContext())
+
         viewModel = ViewModelProviders.of(this).get(HomeViewModel::class.java)
 
 
@@ -60,6 +94,7 @@ class Home : Fragment(), ItemClickListener {
             override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
+
             override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
 
             }
@@ -73,15 +108,27 @@ class Home : Fragment(), ItemClickListener {
         viewModel.getAllRecipes()
         viewModel.getRecipeLiveData().observe(viewLifecycleOwner, Observer { recipes ->
 
-            recipes.sortedBy { recipeItem ->
-                recipeItem.carbos
+            val sortValue = sharedPreferencesHelper.getDataFromShared("sort")
+
+            if (sortValue == null) {
+
+                recipesList = recipes
+            } else if (sortValue == "calories") {
+                recipesList = recipes.sortedBy {
+                    it.calories
+                }
+            } else {
+                recipesList = recipes.sortedBy {
+                    it.fats
+                }
             }
+
+
 
             progress_bar.visibility = View.GONE
             connection_layout.visibility = View.GONE
 
-            recipesList = recipes
-            recipeAdapter.setResult(recipes)
+            recipeAdapter.setResult(recipesList)
 
 
         })

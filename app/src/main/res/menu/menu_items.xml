@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/calories_sort"
+        android:title="Sort by calories" />
+    <item
+        android:id="@+id/fats_sort"
+        android:title="Sort by fats" />
+
+</menu>
