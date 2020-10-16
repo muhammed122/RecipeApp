@@ -21,13 +21,10 @@ Kotlin - official programming language for Android development
 <br>
 Coroutines - for asynchronous programming .
 <br>
-Android Architecture Components - Collection of libraries that help you design robust, testable, and maintainable apps.
-<br>
+
 LiveData - Data objects that notify views when the underlying database changes.
 <br>
 ViewModel - Stores UI-related data that isn't destroyed on UI changes.
-<br>
-Room - Access your app's SQLite database with in-app objects and compile-time checks.
 <br>
 Navigation -
 <br>
